@@ -1,0 +1,137 @@
+name: Images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      # the version number changes in version.txt
+      # so only release if that file has changed
+      - 'Runners/version.txt'
+
+env:
+  IMAGE_REGISTRY: ghcr.io
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get Build Date
+        id: build_date
+        run: BUILD_DATE="`date -u +"%Y-%m-%dT%H:%M:%SZ"`" && echo "date=$BUILD_DATE" >> $GITHUB_OUTPUT
+
+      - name: Get Version
+        id: image_version
+        run: IMAGE_VERSION=$(cat ./Runners/version.txt) && echo "version=$IMAGE_VERSION" >> $GITHUB_OUTPUT
+
+    outputs:
+      version: ${{ steps.image_version.outputs.version }}
+      date: ${{ steps.image_version.outputs.date }}
+
+  core:
+    name: Core
+    runs-on: ubuntu-latest
+    needs: [setup]
+
+    env:
+      BUILD_DATE: ${{ needs.setup.outputs.date }}
+      IMAGE_VERSION: ${{ needs.setup.outputs.versiom }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # - name: Set up QEMU
+      #   uses: docker/setup-qemu-action@v2
+
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v2
+
+      - name: Docker Login
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        env:
+          IMAGE_REPOSITORY: ${{ github.repository }}
+        with:
+          context: ./Runners/core
+          file: ./Runners/core/Dockerfile
+          # platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          build-args: |
+            BUILD_DATE=${{ env.BUILD_DATE }}
+            IMAGE_VERSION=${{ env.IMAGE_VERSION }}
+          tags: |
+            ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}/core:latest
+            ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}/core:${{ env.IMAGE_VERSION }}
+
+  runners:
+    name: Runners
+    runs-on: ubuntu-latest
+    needs: [setup, core]
+
+    env:
+      BUILD_DATE: ${{ needs.setup.outputs.date }}
+      IMAGE_VERSION: ${{ needs.setup.outputs.versiom }}
+
+    strategy:
+      max-parallel: 5
+      matrix:
+        runner: ['arm', 'terraform']
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # - name: Set up QEMU
+      #   uses: docker/setup-qemu-action@v2
+
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v2
+
+      - name: Docker Login
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        env:
+          IMAGE_REPOSITORY: ${{ github.repository }}
+        with:
+          context: ./Runners/${{ matrix.runner }}
+          file: ./Runners/${{ matrix.runner }}/Dockerfile
+          # platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          build-args: |
+            BUILD_DATE=${{ env.BUILD_DATE }}
+            IMAGE_VERSION=${{ env.IMAGE_VERSION }}
+          tags: |
+            ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}/${{ matrix.runner }}:latest
+            ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}/${{ matrix.runner }}:${{ env.IMAGE_VERSION }}
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [setup, core, runners]
+
+    env:
+      IMAGE_VERSION: ${{ needs.setup.outputs.versiom }}
+
+    steps:
+      - name: Create Release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const releaseResult = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: 'v${{ env.IMAGE_VERSION }}',
+              name: 'v${{ env.IMAGE_VERSION }}'
+            });
