@@ -1,0 +1,108 @@
+{
+    "version": "2.0.0",
+    "type": "shell",
+    "options": {
+        "cwd": "${workspaceFolder}"
+    },
+    "problemMatcher": [],
+    "presentation": {
+        "showReuseMessage": false,
+    },
+    "tasks": [
+        {
+            "label": "docker: build push (latest)",
+            "detail": "Build and push the latest docker image",
+            "type": "shell",
+            "command": "echo done.",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "docker: build",
+                "docker: push (latest)"
+            ],
+            "icon": {
+                "id": "rocket",
+                "color": "terminal.ansiBlue"
+            },
+        },
+        {
+            "label": "docker: push (latest)",
+            "command": "docker",
+            "args": [
+                "push",
+                // "ghcr.io/${input:imageRepository}/builder:latest"
+                "ghcr.io/colbylwilliams/ade/${input:imageName}:latest"
+            ],
+            "dependsOn": [
+                "docker: push"
+            ],
+            "icon": {
+                "id": "rocket",
+                "color": "terminal.ansiBlue"
+            },
+        },
+        {
+            "label": "docker: push",
+            "command": "docker",
+            "args": [
+                "push",
+                // "ghcr.io/${input:imageRepository}/builder:${input:imageTagVersion}"
+                "ghcr.io/colbylwilliams/ade/${input:imageName}:${input:imageTagVersion}"
+            ],
+            "icon": {
+                "id": "rocket",
+                "color": "terminal.ansiBlue"
+            },
+        },
+        {
+            "label": "docker: build",
+            "type": "docker-build",
+            "dockerBuild": {
+                "context": "${workspaceFolder}${pathSeparator}Runners${pathSeperator}${input:imageName}",
+                "dockerfile": "${workspaceFolder}${pathSeparator}Runners${pathSeperator}${input:imageName}${pathSeparator}Dockerfile",
+                // "tag": "ghcr.io/${input:imageRepository}/builder:${input:imageTagVersion}",
+                // "customOptions": "-t \"ghcr.io/${input:imageRepository}/builder:latest\"",
+                "tag": "ghcr.io/colbylwilliams/ade/${input:imageName}:${input:imageTagVersion}",
+                "customOptions": "-t \"ghcr.io/colbylwilliams/ade/${input:imageName}:latest\"",
+                "buildArgs": {
+                    "IMAGE_VERSION": "${input:imageTagVersion}"
+                },
+                "labels": {
+                    "includeDefaults": false
+                }
+            },
+            "icon": {
+                "id": "rocket",
+                "color": "terminal.ansiBlue"
+            }
+        }
+    ],
+    "inputs": [
+        // {
+        //     "id": "imageRepository",
+        //     "type": "pickString",
+        //     "description": "Repository name to push the image.",
+        //     "default": "colbylwilliams/az-bake",
+        //     "options": [
+        //         "colbylwilliams/az-bake",
+        //         // "azure/dev-box-images"
+        //     ]
+        // },
+        {
+            "id": "imageName",
+            "type": "pickString",
+            "description": "Name of the image to build.",
+            "default": "core",
+            "options": [
+                "core",
+                "arm",
+                "terraform"
+            ]
+        },
+        {
+            "id": "imageTagVersion",
+            "type": "promptString",
+            "description": "Version for this tag ex. 1.0.0 (also builds a latest version).",
+            // "default": "0.0.0"
+        },
+    ]
+}
