@@ -137,3 +137,4 @@ dmypy.json
 .env
 
 local.settings.json
+local.parameters.json
