@@ -1,0 +1,6 @@
+name: Runner
+version: 1.0.0
+summary: ACI ARM Runner
+description: Deploys ARM via an ACI wrapper
+runner: ARM
+templatePath: azuredeploy.json

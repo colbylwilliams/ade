@@ -1,0 +1,224 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.13.1.58284",
+      "templateHash": "2506812660906957152"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "name": {
+      "type": "string"
+    },
+    "container": {
+      "type": "string",
+      "defaultValue": "ghcr.io/colbylwilliams/ade/arm",
+      "metadata": {
+        "description": "Container image to deploy. Should be of the form repoName/imagename:tag for images stored in public Docker Hub, or a fully qualified URI for other registries."
+      }
+    },
+    "clientId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The client (app) id for the service principal to use for authentication."
+      }
+    },
+    "clientSecret": {
+      "type": "secureString",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The secret for the service principal to use for authentication."
+      }
+    },
+    "actionId": {
+      "type": "string",
+      "defaultValue": "[guid(parameters('name'))]"
+    },
+    "actionName": {
+      "type": "string",
+      "defaultValue": "deploy"
+    },
+    "catalog": {
+      "type": "string",
+      "defaultValue": "default"
+    },
+    "catalogItem": {
+      "type": "string",
+      "defaultValue": "Echo"
+    },
+    "catalogRepoUrl": {
+      "type": "string",
+      "defaultValue": "https://github.com/colbylwilliams/ade"
+    },
+    "catalogRepoRevision": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "catalogRepoSecret": {
+      "type": "secureString",
+      "defaultValue": ""
+    },
+    "catalogRepoPath": {
+      "type": "string",
+      "defaultValue": "/Environments"
+    }
+  },
+  "variables": {
+    "mountStorage": "/mnt/storage",
+    "mountTemporary": "/mnt/temporary",
+    "mountRepository": "/mnt/repository",
+    "authEnvironmentVars": "[if(and(not(empty(parameters('clientId'))), not(empty(parameters('clientSecret')))), createArray(createObject('name', 'AZURE_TENANT_ID', 'value', tenant().tenantId), createObject('name', 'AZURE_CLIENT_ID', 'value', parameters('clientId')), createObject('name', 'AZURE_CLIENT_SECRET', 'secureValue', parameters('clientSecret'))), createArray())]",
+    "identityId": "/subscriptions/e5f715ae-6c72-4a5c-87c8-495590c34828/resourcegroups/ade-tests/providers/Microsoft.ManagedIdentity/userAssignedIdentities/ADETestProject-Dev",
+    "storageAccountId": "/subscriptions/e5f715ae-6c72-4a5c-87c8-495590c34828/resourceGroups/ade-tests/providers/Microsoft.Storage/storageAccounts/adetestcenter",
+    "storageAccountName": "[if(empty(variables('storageAccountId')), '', last(split(variables('storageAccountId'), '/')))]",
+    "storageAccountGroup": "[if(empty(variables('storageAccountId')), '', first(split(last(split(replace(variables('storageAccountId'), 'resourceGroups', 'resourcegroups'), '/resourcegroups/')), '/')))]",
+    "storageAccountSub": "[if(empty(variables('storageAccountId')), '', first(split(last(split(variables('storageAccountId'), '/subscriptions/')), '/')))]",
+    "repositoryUser": "[if(contains(toLower(parameters('catalogRepoUrl')), 'github.com'), 'gituser', if(contains(toLower(parameters('catalogRepoUrl')), 'dev.azure.com'), 'azurereposuser', 'user'))]",
+    "repository": "[if(empty(parameters('catalogRepoSecret')), parameters('catalogRepoUrl'), replace(parameters('catalogRepoUrl'), 'https://', format('https://{0}:{1}@', variables('repositoryUser'), parameters('catalogRepoSecret'))))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2022-09-01",
+      "name": "aderunner",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[format('{0}', variables('identityId'))]": {}
+        }
+      },
+      "properties": {
+        "containers": [
+          {
+            "name": "aderunner",
+            "properties": {
+              "image": "[parameters('container')]",
+              "resources": {
+                "requests": {
+                  "cpu": 1,
+                  "memoryInGB": 2
+                }
+              },
+              "volumeMounts": [
+                {
+                  "name": "repository",
+                  "mountPath": "[variables('mountRepository')]",
+                  "readOnly": false
+                },
+                {
+                  "name": "storage",
+                  "mountPath": "[variables('mountStorage')]",
+                  "readOnly": false
+                },
+                {
+                  "name": "temporary",
+                  "mountPath": "[variables('mountTemporary')]",
+                  "readOnly": false
+                }
+              ],
+              "environmentVariables": "[if(empty(variables('authEnvironmentVars')), createArray(createObject('name', 'ARM_USE_MSI', 'value', true()), createObject('name', 'ARM_TENANT_ID', 'value', tenant().tenantId), createObject('name', 'ARM_SUBSCRIPTION_ID', 'value', subscription().subscriptionId), createObject('name', 'ARM_RESOURCE_GROUP_NAME', 'value', resourceGroup().name), createObject('name', 'ENVIRONMENT_ID', 'value', ''), createObject('name', 'ENVIRONMENT_LOCATION', 'value', parameters('location')), createObject('name', 'ENVIRONMENT_SUBSCRIPTION', 'value', subscription().id), createObject('name', 'ENVIRONMENT_SUBSCRIPTION_ID', 'value', subscription().subscriptionId), createObject('name', 'ENVIRONMENT_RESOURCE_GROUP_ID', 'value', resourceGroup().id), createObject('name', 'ENVIRONMENT_RESOURCE_GROUP_NAME', 'value', resourceGroup().name), createObject('name', 'ENVIRONMENT_ARTIFACTS', 'value', format('{0}/.artifacts', variables('mountStorage'))), createObject('name', 'ENVIRONMENT_TYPE_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.ENVIRONMENT_TYPE_ID), createObject('name', 'ENVIRONMENT_TYPE_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.ENVIRONMENT_TYPE_NAME), createObject('name', 'ENVIRONMENT_TYPE_IDENTITY', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.ENVIRONMENT_TYPE_IDENTITY), createObject('name', 'ENVIRONMENT_TYPE_IDENTITY_TYPE', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.ENVIRONMENT_TYPE_IDENTITY_TYPE), createObject('name', 'PROJECT_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.PROJECT_ID), createObject('name', 'PROJECT_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.PROJECT_NAME), createObject('name', 'DEVCENTER_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_ID), createObject('name', 'DEVCENTER_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_NAME), createObject('name', 'DEVCENTER_CONFIG_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_CONFIG_ID), createObject('name', 'DEVCENTER_CONFIG_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_CONFIG_NAME), createObject('name', 'DEVCENTER_STORAGE_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_STORAGE_ID), createObject('name', 'DEVCENTER_STORAGE_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_STORAGE_NAME), createObject('name', 'ACTION_ID', 'value', parameters('actionId')), createObject('name', 'ACTION_NAME', 'value', parameters('actionName')), createObject('name', 'ACTION_PARAMETERS', 'value', ''), createObject('name', 'ACTION_STORAGE', 'value', variables('mountStorage')), createObject('name', 'ACTION_TEMP', 'value', '/mnt/temporary'), createObject('name', 'ACTION_OUTPUT', 'value', format('/mnt/storage/.output/{0}', parameters('actionId'))), createObject('name', 'CATALOG', 'value', format('{0}{1}', variables('mountRepository'), parameters('catalogRepoPath'))), createObject('name', 'CATALOG_NAME', 'value', parameters('catalog')), createObject('name', 'CATALOG_ITEM', 'value', format('{0}{1}/{2}', variables('mountRepository'), parameters('catalogRepoPath'), parameters('catalogItem'))), createObject('name', 'CATALOG_ITEM_NAME', 'value', parameters('catalogItem')), createObject('name', 'CATALOG_ITEM_TEMPLATE', 'value', ''), createObject('name', 'CATALOG_ITEM_TEMPLATE_URL', 'value', ''), createObject('name', 'CATALOG_ITEM_TEMPLATE_URL_TOKEN', 'value', '')), concat(createArray(createObject('name', 'ARM_USE_MSI', 'value', true()), createObject('name', 'ARM_TENANT_ID', 'value', tenant().tenantId), createObject('name', 'ARM_SUBSCRIPTION_ID', 'value', subscription().subscriptionId), createObject('name', 'ARM_RESOURCE_GROUP_NAME', 'value', resourceGroup().name), createObject('name', 'ENVIRONMENT_ID', 'value', ''), createObject('name', 'ENVIRONMENT_LOCATION', 'value', parameters('location')), createObject('name', 'ENVIRONMENT_SUBSCRIPTION', 'value', subscription().id), createObject('name', 'ENVIRONMENT_SUBSCRIPTION_ID', 'value', subscription().subscriptionId), createObject('name', 'ENVIRONMENT_RESOURCE_GROUP_ID', 'value', resourceGroup().id), createObject('name', 'ENVIRONMENT_RESOURCE_GROUP_NAME', 'value', resourceGroup().name), createObject('name', 'ENVIRONMENT_ARTIFACTS', 'value', format('{0}/.artifacts', variables('mountStorage'))), createObject('name', 'ENVIRONMENT_TYPE_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.ENVIRONMENT_TYPE_ID), createObject('name', 'ENVIRONMENT_TYPE_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.ENVIRONMENT_TYPE_NAME), createObject('name', 'ENVIRONMENT_TYPE_IDENTITY', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.ENVIRONMENT_TYPE_IDENTITY), createObject('name', 'ENVIRONMENT_TYPE_IDENTITY_TYPE', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.ENVIRONMENT_TYPE_IDENTITY_TYPE), createObject('name', 'PROJECT_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.PROJECT_ID), createObject('name', 'PROJECT_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.PROJECT_NAME), createObject('name', 'DEVCENTER_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_ID), createObject('name', 'DEVCENTER_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_NAME), createObject('name', 'DEVCENTER_CONFIG_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_CONFIG_ID), createObject('name', 'DEVCENTER_CONFIG_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_CONFIG_NAME), createObject('name', 'DEVCENTER_STORAGE_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_STORAGE_ID), createObject('name', 'DEVCENTER_STORAGE_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_STORAGE_NAME), createObject('name', 'ACTION_ID', 'value', parameters('actionId')), createObject('name', 'ACTION_NAME', 'value', parameters('actionName')), createObject('name', 'ACTION_PARAMETERS', 'value', ''), createObject('name', 'ACTION_STORAGE', 'value', variables('mountStorage')), createObject('name', 'ACTION_TEMP', 'value', '/mnt/temporary'), createObject('name', 'ACTION_OUTPUT', 'value', format('/mnt/storage/.output/{0}', parameters('actionId'))), createObject('name', 'CATALOG', 'value', format('{0}{1}', variables('mountRepository'), parameters('catalogRepoPath'))), createObject('name', 'CATALOG_NAME', 'value', parameters('catalog')), createObject('name', 'CATALOG_ITEM', 'value', format('{0}{1}/{2}', variables('mountRepository'), parameters('catalogRepoPath'), parameters('catalogItem'))), createObject('name', 'CATALOG_ITEM_NAME', 'value', parameters('catalogItem')), createObject('name', 'CATALOG_ITEM_TEMPLATE', 'value', ''), createObject('name', 'CATALOG_ITEM_TEMPLATE_URL', 'value', ''), createObject('name', 'CATALOG_ITEM_TEMPLATE_URL_TOKEN', 'value', '')), variables('authEnvironmentVars')))]"
+            }
+          }
+        ],
+        "osType": "Linux",
+        "restartPolicy": "Never",
+        "volumes": [
+          {
+            "name": "repository",
+            "gitRepo": {
+              "repository": "[variables('repository')]",
+              "directory": ".",
+              "revision": "[if(not(empty(parameters('catalogRepoRevision'))), parameters('catalogRepoRevision'), null())]"
+            }
+          },
+          {
+            "name": "storage",
+            "azureFile": {
+              "shareName": "[reference(resourceId('Microsoft.Resources/deployments', 'storageFileShare'), '2020-10-01').outputs.shareName.value]",
+              "storageAccountName": "[variables('storageAccountName')]",
+              "storageAccountKey": "[listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('storageAccountSub'), variables('storageAccountGroup')), 'Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-09-01').keys[0].value]",
+              "readOnly": false
+            }
+          },
+          {
+            "name": "temporary",
+            "emptyDir": {}
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'storageFileShare')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "storageFileShare",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "accountName": {
+            "value": "[variables('storageAccountName')]"
+          },
+          "shareName": {
+            "value": "[parameters('name')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.13.1.58284",
+              "templateHash": "17607802289979940375"
+            }
+          },
+          "parameters": {
+            "shareName": {
+              "type": "string"
+            },
+            "accountName": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+              "apiVersion": "2021-09-01",
+              "name": "[format('{0}/{1}/{2}', parameters('accountName'), 'default', parameters('shareName'))]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('accountName'), 'default')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts/fileServices",
+              "apiVersion": "2021-09-01",
+              "name": "[format('{0}/{1}', parameters('accountName'), 'default')]"
+            }
+          ],
+          "outputs": {
+            "shareName": {
+              "type": "string",
+              "value": "[parameters('shareName')]"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

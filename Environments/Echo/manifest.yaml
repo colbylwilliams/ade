@@ -1,0 +1,6 @@
+name: Echo
+version: 1.0.0
+summary: Echo environment variables
+description: Overwrites the deploy script to echo environment variables
+runner: ARM
+templatePath: azuredeploy.json
