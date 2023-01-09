@@ -29,7 +29,7 @@ jobs:
 
     outputs:
       version: ${{ steps.image_version.outputs.version }}
-      date: ${{ steps.image_version.outputs.date }}
+      date: ${{ steps.build_date.outputs.date }}
 
   core:
     name: Core
@@ -38,7 +38,7 @@ jobs:
 
     env:
       BUILD_DATE: ${{ needs.setup.outputs.date }}
-      IMAGE_VERSION: ${{ needs.setup.outputs.versiom }}
+      IMAGE_VERSION: ${{ needs.setup.outputs.version }}
 
     steps:
       - uses: actions/checkout@v3
@@ -79,7 +79,7 @@ jobs:
 
     env:
       BUILD_DATE: ${{ needs.setup.outputs.date }}
-      IMAGE_VERSION: ${{ needs.setup.outputs.versiom }}
+      IMAGE_VERSION: ${{ needs.setup.outputs.version }}
 
     strategy:
       max-parallel: 5
@@ -124,7 +124,7 @@ jobs:
     needs: [setup, core, runners]
 
     env:
-      IMAGE_VERSION: ${{ needs.setup.outputs.versiom }}
+      IMAGE_VERSION: ${{ needs.setup.outputs.version }}
 
     steps:
       - name: Create Release
