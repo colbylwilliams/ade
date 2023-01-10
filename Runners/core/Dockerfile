@@ -35,6 +35,7 @@ COPY entrypoint.d/* /entrypoint.d/
 COPY entrypoint.sh /entrypoint.sh
 COPY actions.d/* /actions.d/
 
+# Make entrypoint.sh and all scripts in entrypoint.d and actions.d executable
 RUN chmod +x /entrypoint.sh \
     && mkdir -p /entrypoint.d && find /entrypoint.d/ -type f -iname "*.sh" -exec chmod +x {} \; \
     && mkdir -p /actions.d && find /actions.d/ -type f -iname "*.sh" -exec chmod +x {} \;
