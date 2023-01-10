@@ -117,6 +117,7 @@ module storageFileShare 'fileshare.bicep' = {
     accountName: storage.name
     shareName: name
   }
+  scope: resourceGroup(storageAccountSub, storageAccountGroup)
 }
 
 resource group 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = {
