@@ -74,6 +74,17 @@
                 "id": "rocket",
                 "color": "terminal.ansiBlue"
             }
+        },
+        {
+            "label": "bicep: build",
+            "command": "${command:python.interpreterPath}",
+            "args": [
+                "tools${pathSeparator}arm.py"
+            ],
+            "icon": {
+                "id": "terminal",
+                "color": "terminal.ansiMagenta"
+            }
         }
     ],
     "inputs": [

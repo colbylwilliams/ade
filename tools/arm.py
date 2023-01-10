@@ -23,7 +23,8 @@ for dirpath, dirnames, files in os.walk(environments_path):
         # image_names.append(Path(dirpath).name)
 
 # get the full path to the azure cli executable
-az = shutil.which('az')
+az = '/usr/local/bin/az'
+# az = shutil.which('az') this doesn't work on my in tasks.json
 
 for environment in environments:
     print(f'  Compiling template: {environment}')

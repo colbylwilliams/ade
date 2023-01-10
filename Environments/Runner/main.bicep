@@ -101,6 +101,11 @@ var storageAccountSub = empty(storageAccountId) ? '' : first(split(last(split(st
 var repositoryUser = contains(toLower(catalogRepoUrl), 'github.com') ? 'gituser' : contains(toLower(catalogRepoUrl), 'dev.azure.com') ? 'azurereposuser' : 'user'
 var repository = empty(catalogRepoSecret) ? catalogRepoUrl : replace(catalogRepoUrl, 'https://', 'https://${repositoryUser}:${catalogRepoSecret}@')
 
+var nameClean = replace(replace(replace(toLower(trim(name)), ' ', '-'), '_', '-'), '.', '-')
+// Character limit: 3-63
+// Valid characters: Lowercase letters, numbers, and hyphens. Cant start or end with hyphen. Cant use consecutive hyphens.
+var shareName = length(nameClean) <= 62 ? nameClean : take(nameClean, 62)
+
 // get the tags that ADE added from the Environment Type
 resource tags 'Microsoft.Resources/tags@2022-09-01' existing = {
   name: 'default'
@@ -115,7 +120,7 @@ module storageFileShare 'fileshare.bicep' = {
   name: 'storageFileShare'
   params: {
     accountName: storage.name
-    shareName: name
+    shareName: shareName
   }
   scope: resourceGroup(storageAccountSub, storageAccountGroup)
 }
@@ -204,7 +209,6 @@ resource group 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = {
           revision: (!empty(catalogRepoRevision) ? catalogRepoRevision : null)
         }
       }
-
       {
         name: 'storage'
         azureFile: {

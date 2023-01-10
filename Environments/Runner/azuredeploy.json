@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "17561258629230620196"
+      "templateHash": "118153355057418034"
     }
   },
   "parameters": {
@@ -84,7 +84,9 @@
     "storageAccountGroup": "[if(empty(variables('storageAccountId')), '', first(split(last(split(replace(variables('storageAccountId'), 'resourceGroups', 'resourcegroups'), '/resourcegroups/')), '/')))]",
     "storageAccountSub": "[if(empty(variables('storageAccountId')), '', first(split(last(split(variables('storageAccountId'), '/subscriptions/')), '/')))]",
     "repositoryUser": "[if(contains(toLower(parameters('catalogRepoUrl')), 'github.com'), 'gituser', if(contains(toLower(parameters('catalogRepoUrl')), 'dev.azure.com'), 'azurereposuser', 'user'))]",
-    "repository": "[if(empty(parameters('catalogRepoSecret')), parameters('catalogRepoUrl'), replace(parameters('catalogRepoUrl'), 'https://', format('https://{0}:{1}@', variables('repositoryUser'), parameters('catalogRepoSecret'))))]"
+    "repository": "[if(empty(parameters('catalogRepoSecret')), parameters('catalogRepoUrl'), replace(parameters('catalogRepoUrl'), 'https://', format('https://{0}:{1}@', variables('repositoryUser'), parameters('catalogRepoSecret'))))]",
+    "nameClean": "[replace(replace(replace(toLower(trim(parameters('name'))), ' ', '-'), '_', '-'), '.', '-')]",
+    "shareName": "[if(lessOrEquals(length(variables('nameClean')), 62), variables('nameClean'), take(variables('nameClean'), 62))]"
   },
   "resources": [
     {
@@ -177,7 +179,7 @@
             "value": "[variables('storageAccountName')]"
           },
           "shareName": {
-            "value": "[parameters('name')]"
+            "value": "[variables('shareName')]"
           }
         },
         "template": {
@@ -187,15 +189,25 @@
             "_generator": {
               "name": "bicep",
               "version": "0.13.1.58284",
-              "templateHash": "17607802289979940375"
+              "templateHash": "16998149225409227632"
             }
           },
           "parameters": {
             "shareName": {
-              "type": "string"
+              "type": "string",
+              "metadata": {
+                "description": "File share name. Valid characters: Lowercase letters, numbers, and hyphens. Cant start or end with hyphen. Cant use consecutive hyphens."
+              },
+              "maxLength": 63,
+              "minLength": 3
             },
             "accountName": {
-              "type": "string"
+              "type": "string",
+              "metadata": {
+                "description": "Storage account name. Valid characters: Lowercase letters and numbers. Resource name must be unique across Azure."
+              },
+              "maxLength": 24,
+              "minLength": 3
             }
           },
           "resources": [
