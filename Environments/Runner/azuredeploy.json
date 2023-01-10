@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "2506812660906957152"
+      "templateHash": "17561258629230620196"
     }
   },
   "parameters": {
@@ -145,7 +145,7 @@
           {
             "name": "storage",
             "azureFile": {
-              "shareName": "[reference(resourceId('Microsoft.Resources/deployments', 'storageFileShare'), '2020-10-01').outputs.shareName.value]",
+              "shareName": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('storageAccountSub'), variables('storageAccountGroup')), 'Microsoft.Resources/deployments', 'storageFileShare'), '2020-10-01').outputs.shareName.value]",
               "storageAccountName": "[variables('storageAccountName')]",
               "storageAccountKey": "[listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('storageAccountSub'), variables('storageAccountGroup')), 'Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-09-01').keys[0].value]",
               "readOnly": false
@@ -158,13 +158,15 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'storageFileShare')]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('storageAccountSub'), variables('storageAccountGroup')), 'Microsoft.Resources/deployments', 'storageFileShare')]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "storageFileShare",
+      "subscriptionId": "[variables('storageAccountSub')]",
+      "resourceGroup": "[variables('storageAccountGroup')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
