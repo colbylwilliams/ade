@@ -8,9 +8,9 @@ DIR=$(dirname "$0")
 
 deploymentName=$(date +"%Y-%m-%d-%H%M%S%z")
 
-echo -e "Deleting resource group: $ENVIRONMENT_RESOURCE_GROUP_NAME"
+echo -e "Deleting resource group: $ADE_ENVIRONMENT_RESOURCE_GROUP_NAME"
 
-deploymentOutput=$(az deployment group create --resource-group "$ENVIRONMENT_RESOURCE_GROUP_NAME" \
+deploymentOutput=$(az deployment group create --resource-group "$ADE_ENVIRONMENT_RESOURCE_GROUP_NAME" \
                                               --name "$deploymentName" \
                                               --no-prompt true --no-wait --mode Complete \
                                               --template-file "$DIR/empty.json" 2>&1)
@@ -22,8 +22,8 @@ if [ $? -eq 0 ]; then # deployment successfully created
 
         sleep 1
 
-        ProvisioningState=$(az deployment group show --resource-group "$ENVIRONMENT_RESOURCE_GROUP_NAME" --name "$deploymentName" --query "properties.provisioningState" -o tsv)
-        ProvisioningDetails=$(az deployment operation group list --resource-group "$ENVIRONMENT_RESOURCE_GROUP_NAME" --name "$deploymentName")
+        ProvisioningState=$(az deployment group show --resource-group "$ADE_ENVIRONMENT_RESOURCE_GROUP_NAME" --name "$deploymentName" --query "properties.provisioningState" -o tsv)
+        ProvisioningDetails=$(az deployment operation group list --resource-group "$ADE_ENVIRONMENT_RESOURCE_GROUP_NAME" --name "$deploymentName")
 
         trackDeployment "$ProvisioningDetails"
 

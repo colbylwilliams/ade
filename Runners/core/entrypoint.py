@@ -30,28 +30,28 @@ ADE_RUNNER = 'ADE_RUNNER'
 IN_RUNNER = os.environ.get(ADE_RUNNER)
 IN_RUNNER = bool(IN_RUNNER)
 
-AZURE_CLIENT_ID = 'AZURE_CLIENT_ID'
-AZURE_CLIENT_SECRET = 'AZURE_CLIENT_SECRET'
-AZURE_TENANT_ID = 'AZURE_TENANT_ID'
+AZURE_CLIENT_ID = 'ADE_AZURE_CLIENT_ID'
+AZURE_CLIENT_SECRET = 'ADE_AZURE_CLIENT_SECRET'
+AZURE_TENANT_ID = 'ADE_AZURE_TENANT_ID'
 
-ACTION_ID = 'ACTION_ID'
-ACTION_NAME = 'ACTION_NAME'
-ACTION_STORAGE = 'ACTION_STORAGE'
-ENVIRONMENT_SUBSCRIPTION_ID = 'ENVIRONMENT_SUBSCRIPTION_ID'
+ADE_ACTION_ID = 'ADE_ACTION_ID'
+ADE_ACTION_NAME = 'ADE_ACTION_NAME'
+ADE_ACTION_STORAGE = 'ADE_ACTION_STORAGE'
+ADE_ENVIRONMENT_SUBSCRIPTION_ID = 'ADE_ENVIRONMENT_SUBSCRIPTION_ID'
 
-CATALOG = 'CATALOG'
-CATALOG_ITEM = 'CATALOG_ITEM'
+ADE_CATALOG = 'ADE_CATALOG'
+ADE_CATALOG_ITEM = 'ADE_CATALOG_ITEM'
 
 if IN_RUNNER:
-    for var in [ACTION_ID, ACTION_NAME, ACTION_STORAGE, CATALOG, CATALOG_ITEM]:
+    for var in [ADE_ACTION_ID, ADE_ACTION_NAME, ADE_ACTION_STORAGE, ADE_CATALOG, ADE_CATALOG_ITEM]:
         if not os.environ.get(var):
             raise Exception(f'{var} environment variable not set')
 
-storage = os.environ.get(ACTION_STORAGE)
-action_id = os.environ.get(ACTION_ID)
-action_name = os.environ.get(ACTION_NAME)
-catalog = os.environ.get(CATALOG)
-catalog_item = os.environ.get(CATALOG_ITEM)
+storage = os.environ.get(ADE_ACTION_STORAGE)
+action_id = os.environ.get(ADE_ACTION_ID)
+action_name = os.environ.get(ADE_ACTION_NAME)
+catalog = os.environ.get(ADE_CATALOG)
+catalog_item = os.environ.get(ADE_CATALOG_ITEM)
 # if not IN_RUNNER:
 #     catalog_item = 'Echo'
 #     action_name = 'delete'
@@ -159,7 +159,7 @@ def az_login():
         log.info(f'Logging in to Azure with managed identity')
         az_cli('az login --identity --allow-no-subscriptions')
 
-    subscription_id = os.environ.get(ENVIRONMENT_SUBSCRIPTION_ID)
+    subscription_id = os.environ.get(ADE_ENVIRONMENT_SUBSCRIPTION_ID)
     if subscription_id:
         log.info(f'Setting subscription to {subscription_id}')
         az_cli(f'az account set --subscription {subscription_id}')
@@ -256,7 +256,7 @@ log.info(f'Current subscription: {sub["name"]} ({sub["id"]})')
 
 script = None
 
-if cmd_input is not None:
+if cmd_input:
     log.info(f'CMD input found: {cmd_input}')
     cmd_input = Path(cmd_input).resolve()
     if not cmd_input.is_file():

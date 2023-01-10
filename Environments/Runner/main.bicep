@@ -22,7 +22,7 @@ param actionName string = 'deploy'
 
 param catalog string = 'default'
 
-param catalogItem string = 'Echo'
+param catalogItem string
 
 param catalogRepoUrl string = 'https://github.com/colbylwilliams/ade'
 
@@ -51,42 +51,42 @@ var defaultEnvironmentVars = [
   { name: 'ARM_USE_MSI', value: true } // Always set to true. Tells software like Terraform to authenticate using the container's managed identity.
   // { name: 'ARM_MSI_ENDPOINT', value: '' } // MSI auth endpoint. Only necessary when the MSI endpoint is different than the well-known one. This will have the same value as MSI_ENDPOINT.
   { name: 'ARM_TENANT_ID', value: tenant().tenantId } // Tenant ID.
-  { name: 'ARM_SUBSCRIPTION_ID', value: subscription().subscriptionId } // The unique id (guid) for subscription that the Environment's resource group is in. This will have the same value as ENVIRONMENT_SUBSCRIPTION_ID.
-  { name: 'ARM_RESOURCE_GROUP_NAME', value: resourceGroup().name } // The name of the Environment's resource group. This will have the same value as ENVIRONMENT_RESOURCE_GROUP_NAME.
-  { name: 'ENVIRONMENT_ID', value: '' } // The unique id (guid) of the Environment.
-  { name: 'ENVIRONMENT_LOCATION', value: location } // The Azure Region to deploy the Environment's resources.
-  { name: 'ENVIRONMENT_SUBSCRIPTION', value: subscription().id } // The resource id for subscription that the Environment's resource group is in. For example: /subscriptions/159f2485-xxxx-xxxx-xxxx-xxxxxxxxxxxx.
-  { name: 'ENVIRONMENT_SUBSCRIPTION_ID', value: subscription().subscriptionId } // The unique id (guid) for subscription that the Environment's resource group is in. This will have the same value as ARM_SUBSCRIPTION_ID.
-  { name: 'ENVIRONMENT_RESOURCE_GROUP_ID', value: resourceGroup().id } // The id of the Environment's resource group. For example: /subscriptions/159f2485-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/ENVIRONMENT_RESOURCE_GROUP_NAME.
-  { name: 'ENVIRONMENT_RESOURCE_GROUP_NAME', value: resourceGroup().name } // The name of the Environment's resource group. This will have the same value as ENVIRONMENT_RESOURCE_GROUP_NAME.
-  { name: 'ENVIRONMENT_ARTIFACTS', value: '${mountStorage}/.artifacts' } // Always set to /mnt/storage/.artifacts. The path to a persistent (file share) directory. This directory will be persisted between actions. Files saved to this directory will be available via the Dataplane.
-  { name: 'ENVIRONMENT_TYPE_ID', value: resourceGroup().tags.ENVIRONMENT_TYPE_ID }
-  { name: 'ENVIRONMENT_TYPE_NAME', value: resourceGroup().tags.ENVIRONMENT_TYPE_NAME }
-  { name: 'ENVIRONMENT_TYPE_IDENTITY', value: resourceGroup().tags.ENVIRONMENT_TYPE_IDENTITY }
-  { name: 'ENVIRONMENT_TYPE_IDENTITY_TYPE', value: resourceGroup().tags.ENVIRONMENT_TYPE_IDENTITY_TYPE }
-  { name: 'PROJECT_ID', value: resourceGroup().tags.PROJECT_ID }
-  { name: 'PROJECT_NAME', value: resourceGroup().tags.PROJECT_NAME }
-  { name: 'DEVCENTER_ID', value: resourceGroup().tags.DEVCENTER_ID }
-  { name: 'DEVCENTER_NAME', value: resourceGroup().tags.DEVCENTER_NAME }
-  { name: 'DEVCENTER_CONFIG_ID', value: resourceGroup().tags.DEVCENTER_CONFIG_ID }
-  { name: 'DEVCENTER_CONFIG_NAME', value: resourceGroup().tags.DEVCENTER_CONFIG_NAME }
-  { name: 'DEVCENTER_STORAGE_ID', value: resourceGroup().tags.DEVCENTER_STORAGE_ID }
-  { name: 'DEVCENTER_STORAGE_NAME', value: resourceGroup().tags.DEVCENTER_STORAGE_NAME }
-  { name: 'ACTION_ID', value: actionId } // The unique id (guid) of the action.
-  { name: 'ACTION_NAME', value: actionName } // The name of the action to execute. For example: deploy.
-  // { name: 'ACTION_HOST', value: '' } // TODO...
-  // { name: 'ACTION_BASE_URL', value: '' } // TODO...
-  { name: 'ACTION_PARAMETERS', value: '' } // A JSON object with the input parameters for the action.
-  { name: 'ACTION_STORAGE', value: mountStorage } // Always set to /mnt/storage. The path to a persistent (file share) directory. This directory will be persisted between actions.
-  { name: 'ACTION_TEMP', value: '/mnt/temporary' } // Always set to /mnt/temporary. The path to a temporary directory. This directory will not be persisted between actions.
-  { name: 'ACTION_OUTPUT', value: '/mnt/storage/.output/${actionId}' } // Always set to /mnt/storage/.output/$ACTION_ID
-  { name: 'CATALOG', value: '${mountRepository}${catalogRepoPath}' } // The path to the Catalog within the cloned Catalog git repository. For example: /mnt/catalog/root/Catalog
-  { name: 'CATALOG_NAME', value: catalog } // The name of the Catalog
-  { name: 'CATALOG_ITEM', value: '${mountRepository}${catalogRepoPath}/${catalogItem}' } // The path to CatalogItem folder within the cloned Catalog git repository. For example: /mnt/catalog/root/Catalog/FunctionApp
-  { name: 'CATALOG_ITEM_NAME', value: catalogItem } // The name of the CatalogItem
-  { name: 'CATALOG_ITEM_TEMPLATE', value: '' } // The path to CatalogItem template file within the cloned Catalog git repository. For example: /mnt/catalog/root/Catalog/FunctionApp/azuredeploy.json
-  { name: 'CATALOG_ITEM_TEMPLATE_URL', value: '' } // TODO...
-  { name: 'CATALOG_ITEM_TEMPLATE_URL_TOKEN', value: '' } // TODO...
+  { name: 'ARM_SUBSCRIPTION_ID', value: subscription().subscriptionId } // The unique id (guid) for subscription that the Environment's resource group is in. This will have the same value as ADE_ENVIRONMENT_SUBSCRIPTION_ID.
+  { name: 'ARM_RESOURCE_GROUP_NAME', value: resourceGroup().name } // The name of the Environment's resource group. This will have the same value as ADE_ENVIRONMENT_RESOURCE_GROUP_NAME.
+  { name: 'ADE_ENVIRONMENT_ID', value: '' } // The unique id (guid) of the Environment.
+  { name: 'ADE_ENVIRONMENT_LOCATION', value: location } // The Azure Region to deploy the Environment's resources.
+  { name: 'ADE_ENVIRONMENT_SUBSCRIPTION', value: subscription().id } // The resource id for subscription that the Environment's resource group is in. For example: /subscriptions/159f2485-xxxx-xxxx-xxxx-xxxxxxxxxxxx.
+  { name: 'ADE_ENVIRONMENT_SUBSCRIPTION_ID', value: subscription().subscriptionId } // The unique id (guid) for subscription that the Environment's resource group is in. This will have the same value as ARM_SUBSCRIPTION_ID.
+  { name: 'ADE_ENVIRONMENT_RESOURCE_GROUP_ID', value: resourceGroup().id } // The id of the Environment's resource group. For example: /subscriptions/159f2485-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/ADE_ENVIRONMENT_RESOURCE_GROUP_NAME.
+  { name: 'ADE_ENVIRONMENT_RESOURCE_GROUP_NAME', value: resourceGroup().name } // The name of the Environment's resource group. This will have the same value as ADE_ENVIRONMENT_RESOURCE_GROUP_NAME.
+  { name: 'ADE_ENVIRONMENT_ARTIFACTS', value: '${mountStorage}/.artifacts' } // Always set to /mnt/storage/.artifacts. The path to a persistent (file share) directory. This directory will be persisted between actions. Files saved to this directory will be available via the Dataplane.
+  { name: 'ADE_ENVIRONMENT_TYPE_ID', value: resourceGroup().tags.ENVIRONMENT_TYPE_ID }
+  { name: 'ADE_ENVIRONMENT_TYPE_NAME', value: resourceGroup().tags.ENVIRONMENT_TYPE_NAME }
+  { name: 'ADE_ENVIRONMENT_TYPE_IDENTITY', value: resourceGroup().tags.ENVIRONMENT_TYPE_IDENTITY }
+  { name: 'ADE_ENVIRONMENT_TYPE_IDENTITY_TYPE', value: resourceGroup().tags.ENVIRONMENT_TYPE_IDENTITY_TYPE }
+  { name: 'ADE_PROJECT_ID', value: resourceGroup().tags.PROJECT_ID }
+  { name: 'ADE_PROJECT_NAME', value: resourceGroup().tags.PROJECT_NAME }
+  { name: 'ADE_DEVCENTER_ID', value: resourceGroup().tags.DEVCENTER_ID }
+  { name: 'ADE_DEVCENTER_NAME', value: resourceGroup().tags.DEVCENTER_NAME }
+  { name: 'ADE_DEVCENTER_CONFIG_ID', value: resourceGroup().tags.DEVCENTER_CONFIG_ID }
+  { name: 'ADE_DEVCENTER_CONFIG_NAME', value: resourceGroup().tags.DEVCENTER_CONFIG_NAME }
+  { name: 'ADE_DEVCENTER_STORAGE_ID', value: resourceGroup().tags.DEVCENTER_STORAGE_ID }
+  { name: 'ADE_DEVCENTER_STORAGE_NAME', value: resourceGroup().tags.DEVCENTER_STORAGE_NAME }
+  { name: 'ADE_ACTION_ID', value: actionId } // The unique id (guid) of the action.
+  { name: 'ADE_ACTION_NAME', value: actionName } // The name of the action to execute. For example: deploy.
+  // { name: 'ADE_ACTION_HOST', value: '' } // TODO...
+  // { name: 'ADE_ACTION_BASE_URL', value: '' } // TODO...
+  { name: 'ADE_ACTION_PARAMETERS', value: '' } // A JSON object with the input parameters for the action.
+  { name: 'ADE_ACTION_STORAGE', value: mountStorage } // Always set to /mnt/storage. The path to a persistent (file share) directory. This directory will be persisted between actions.
+  { name: 'ADE_ACTION_TEMP', value: '/mnt/temporary' } // Always set to /mnt/temporary. The path to a temporary directory. This directory will not be persisted between actions.
+  { name: 'ADE_ACTION_OUTPUT', value: '/mnt/storage/.output/${actionId}' } // Always set to /mnt/storage/.output/$ACTION_ID
+  { name: 'ADE_CATALOG', value: '${mountRepository}${catalogRepoPath}' } // The path to the Catalog within the cloned Catalog git repository. For example: /mnt/catalog/root/Catalog
+  { name: 'ADE_CATALOG_NAME', value: catalog } // The name of the Catalog
+  { name: 'ADE_CATALOG_ITEM', value: '${mountRepository}${catalogRepoPath}/${catalogItem}' } // The path to CatalogItem folder within the cloned Catalog git repository. For example: /mnt/catalog/root/Catalog/FunctionApp
+  { name: 'ADE_CATALOG_ITEM_NAME', value: catalogItem } // The name of the CatalogItem
+  { name: 'ADE_CATALOG_ITEM_TEMPLATE', value: '' } // The path to CatalogItem template file within the cloned Catalog git repository. For example: /mnt/catalog/root/Catalog/FunctionApp/azuredeploy.json
+  { name: 'ADE_CATALOG_ITEM_TEMPLATE_URL', value: '' } // TODO...
+  { name: 'ADE_CATALOG_ITEM_TEMPLATE_URL_TOKEN', value: '' } // TODO...
 ]
 
 var environmentVars = empty(authEnvironmentVars) ? defaultEnvironmentVars : concat(defaultEnvironmentVars, authEnvironmentVars)

@@ -19,7 +19,7 @@ if [ ! -z "$(find . -name '*.bicep' -print -quit)" ] ; then
 fi
 
 # format the action parameters as arm parameters
-deploymentParameters=$(echo "$ACTION_PARAMETERS" | jq --compact-output '{ "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#", "contentVersion": "1.0.0.0", "parameters": (to_entries | if length == 0 then {} else (map( { (.key): { "value": .value } } ) | add) end) }' )
+deploymentParameters=$(echo "$ADE_ACTION_PARAMETERS" | jq --compact-output '{ "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#", "contentVersion": "1.0.0.0", "parameters": (to_entries | if length == 0 then {} else (map( { (.key): { "value": .value } } ) | add) end) }' )
 
 
 # This is a bit of a hack, but we can resolve linked templates with
@@ -33,33 +33,33 @@ deploymentParameters=$(echo "$ACTION_PARAMETERS" | jq --compact-output '{ "$sche
 #      into ARM. This will output a new, single ARM template with the
 #      linked templates embedded as nested templates
 
-hasRelativePath=$( cat $CATALOG_ITEM_TEMPLATE | jq '.. | objects | select(has("templateLink") and (.templateLink | has("relativePath"))) | any' )
+hasRelativePath=$( cat $ADE_CATALOG_ITEM_TEMPLATE | jq '.. | objects | select(has("templateLink") and (.templateLink | has("relativePath"))) | any' )
 
 if [ "$relativePath" = true ] ; then
 
     trace "Resolving linked  ARM templates"
 
-    bicepTemplate="${CATALOG_ITEM_TEMPLATE/.json/.bicep}"
-    generatedTemplate="${CATALOG_ITEM_TEMPLATE/.json/.generated.json}"
+    bicepTemplate="${ADE_CATALOG_ITEM_TEMPLATE/.json/.bicep}"
+    generatedTemplate="${ADE_CATALOG_ITEM_TEMPLATE/.json/.generated.json}"
 
-    az bicep decompile --file $CATALOG_ITEM_TEMPLATE
+    az bicep decompile --file $ADE_CATALOG_ITEM_TEMPLATE
     az bicep build --file $bicepTemplate --outfile $generatedTemplate
 
     deploymentTemplate=$generatedTemplate
 
 else
 
-    deploymentTemplate=$CATALOG_ITEM_TEMPLATE
+    deploymentTemplate=$ADE_CATALOG_ITEM_TEMPLATE
 
 fi
 
 
 trace "Deploying ARM template"
 
-if [ -z "$ENVIRONMENT_RESOURCE_GROUP_NAME" ]; then
+if [ -z "$ADE_ENVIRONMENT_RESOURCE_GROUP_NAME" ]; then
 
-    deploymentOutput=$(az deployment sub create --subscription $ENVIRONMENT_SUBSCRIPTION_ID \
-                                                --location "$ENVIRONMENT_LOCATION" \
+    deploymentOutput=$(az deployment sub create --subscription $ADE_ENVIRONMENT_SUBSCRIPTION_ID \
+                                                --location "$ADE_ENVIRONMENT_LOCATION" \
                                                 --name "$deploymentName" \
                                                 --no-prompt true --no-wait \
                                                 --template-file "$deploymentTemplate" \
@@ -92,8 +92,8 @@ if [ -z "$ENVIRONMENT_RESOURCE_GROUP_NAME" ]; then
 
 else
 
-    deploymentOutput=$(az deployment group create --subscription $ENVIRONMENT_SUBSCRIPTION_ID \
-                                                    --resource-group "$ENVIRONMENT_RESOURCE_GROUP_NAME" \
+    deploymentOutput=$(az deployment group create --subscription $ADE_ENVIRONMENT_SUBSCRIPTION_ID \
+                                                    --resource-group "$ADE_ENVIRONMENT_RESOURCE_GROUP_NAME" \
                                                     --name "$deploymentName" \
                                                     --no-prompt true --no-wait --mode Complete \
                                                     --template-file "$deploymentTemplate" \
@@ -105,8 +105,8 @@ else
 
             sleep 1
 
-            ProvisioningState=$(az deployment group show --resource-group "$ENVIRONMENT_RESOURCE_GROUP_NAME" --name "$deploymentName" --query "properties.provisioningState" -o tsv)
-            ProvisioningDetails=$(az deployment operation group list --resource-group "$ENVIRONMENT_RESOURCE_GROUP_NAME" --name "$deploymentName")
+            ProvisioningState=$(az deployment group show --resource-group "$ADE_ENVIRONMENT_RESOURCE_GROUP_NAME" --name "$deploymentName" --query "properties.provisioningState" -o tsv)
+            ProvisioningDetails=$(az deployment operation group list --resource-group "$ADE_ENVIRONMENT_RESOURCE_GROUP_NAME" --name "$deploymentName")
 
             trackDeployment "$ProvisioningDetails"
 

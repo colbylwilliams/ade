@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "7824848971507450237"
+      "templateHash": "4827866076942312277"
     }
   },
   "parameters": {
@@ -53,8 +53,7 @@
       "defaultValue": "default"
     },
     "catalogItem": {
-      "type": "string",
-      "defaultValue": "Echo"
+      "type": "string"
     },
     "catalogRepoUrl": {
       "type": "string",
@@ -96,131 +95,131 @@
         "value": "[resourceGroup().name]"
       },
       {
-        "name": "ENVIRONMENT_ID",
+        "name": "ADE_ENVIRONMENT_ID",
         "value": ""
       },
       {
-        "name": "ENVIRONMENT_LOCATION",
+        "name": "ADE_ENVIRONMENT_LOCATION",
         "value": "[parameters('location')]"
       },
       {
-        "name": "ENVIRONMENT_SUBSCRIPTION",
+        "name": "ADE_ENVIRONMENT_SUBSCRIPTION",
         "value": "[subscription().id]"
       },
       {
-        "name": "ENVIRONMENT_SUBSCRIPTION_ID",
+        "name": "ADE_ENVIRONMENT_SUBSCRIPTION_ID",
         "value": "[subscription().subscriptionId]"
       },
       {
-        "name": "ENVIRONMENT_RESOURCE_GROUP_ID",
+        "name": "ADE_ENVIRONMENT_RESOURCE_GROUP_ID",
         "value": "[resourceGroup().id]"
       },
       {
-        "name": "ENVIRONMENT_RESOURCE_GROUP_NAME",
+        "name": "ADE_ENVIRONMENT_RESOURCE_GROUP_NAME",
         "value": "[resourceGroup().name]"
       },
       {
-        "name": "ENVIRONMENT_ARTIFACTS",
+        "name": "ADE_ENVIRONMENT_ARTIFACTS",
         "value": "[format('{0}/.artifacts', variables('mountStorage'))]"
       },
       {
-        "name": "ENVIRONMENT_TYPE_ID",
+        "name": "ADE_ENVIRONMENT_TYPE_ID",
         "value": "[resourceGroup().tags.ENVIRONMENT_TYPE_ID]"
       },
       {
-        "name": "ENVIRONMENT_TYPE_NAME",
+        "name": "ADE_ENVIRONMENT_TYPE_NAME",
         "value": "[resourceGroup().tags.ENVIRONMENT_TYPE_NAME]"
       },
       {
-        "name": "ENVIRONMENT_TYPE_IDENTITY",
+        "name": "ADE_ENVIRONMENT_TYPE_IDENTITY",
         "value": "[resourceGroup().tags.ENVIRONMENT_TYPE_IDENTITY]"
       },
       {
-        "name": "ENVIRONMENT_TYPE_IDENTITY_TYPE",
+        "name": "ADE_ENVIRONMENT_TYPE_IDENTITY_TYPE",
         "value": "[resourceGroup().tags.ENVIRONMENT_TYPE_IDENTITY_TYPE]"
       },
       {
-        "name": "PROJECT_ID",
+        "name": "ADE_PROJECT_ID",
         "value": "[resourceGroup().tags.PROJECT_ID]"
       },
       {
-        "name": "PROJECT_NAME",
+        "name": "ADE_PROJECT_NAME",
         "value": "[resourceGroup().tags.PROJECT_NAME]"
       },
       {
-        "name": "DEVCENTER_ID",
+        "name": "ADE_DEVCENTER_ID",
         "value": "[resourceGroup().tags.DEVCENTER_ID]"
       },
       {
-        "name": "DEVCENTER_NAME",
+        "name": "ADE_DEVCENTER_NAME",
         "value": "[resourceGroup().tags.DEVCENTER_NAME]"
       },
       {
-        "name": "DEVCENTER_CONFIG_ID",
+        "name": "ADE_DEVCENTER_CONFIG_ID",
         "value": "[resourceGroup().tags.DEVCENTER_CONFIG_ID]"
       },
       {
-        "name": "DEVCENTER_CONFIG_NAME",
+        "name": "ADE_DEVCENTER_CONFIG_NAME",
         "value": "[resourceGroup().tags.DEVCENTER_CONFIG_NAME]"
       },
       {
-        "name": "DEVCENTER_STORAGE_ID",
+        "name": "ADE_DEVCENTER_STORAGE_ID",
         "value": "[resourceGroup().tags.DEVCENTER_STORAGE_ID]"
       },
       {
-        "name": "DEVCENTER_STORAGE_NAME",
+        "name": "ADE_DEVCENTER_STORAGE_NAME",
         "value": "[resourceGroup().tags.DEVCENTER_STORAGE_NAME]"
       },
       {
-        "name": "ACTION_ID",
+        "name": "ADE_ACTION_ID",
         "value": "[parameters('actionId')]"
       },
       {
-        "name": "ACTION_NAME",
+        "name": "ADE_ACTION_NAME",
         "value": "[parameters('actionName')]"
       },
       {
-        "name": "ACTION_PARAMETERS",
+        "name": "ADE_ACTION_PARAMETERS",
         "value": ""
       },
       {
-        "name": "ACTION_STORAGE",
+        "name": "ADE_ACTION_STORAGE",
         "value": "[variables('mountStorage')]"
       },
       {
-        "name": "ACTION_TEMP",
+        "name": "ADE_ACTION_TEMP",
         "value": "/mnt/temporary"
       },
       {
-        "name": "ACTION_OUTPUT",
+        "name": "ADE_ACTION_OUTPUT",
         "value": "[format('/mnt/storage/.output/{0}', parameters('actionId'))]"
       },
       {
-        "name": "CATALOG",
+        "name": "ADE_CATALOG",
         "value": "[format('{0}{1}', variables('mountRepository'), parameters('catalogRepoPath'))]"
       },
       {
-        "name": "CATALOG_NAME",
+        "name": "ADE_CATALOG_NAME",
         "value": "[parameters('catalog')]"
       },
       {
-        "name": "CATALOG_ITEM",
+        "name": "ADE_CATALOG_ITEM",
         "value": "[format('{0}{1}/{2}', variables('mountRepository'), parameters('catalogRepoPath'), parameters('catalogItem'))]"
       },
       {
-        "name": "CATALOG_ITEM_NAME",
+        "name": "ADE_CATALOG_ITEM_NAME",
         "value": "[parameters('catalogItem')]"
       },
       {
-        "name": "CATALOG_ITEM_TEMPLATE",
+        "name": "ADE_CATALOG_ITEM_TEMPLATE",
         "value": ""
       },
       {
-        "name": "CATALOG_ITEM_TEMPLATE_URL",
+        "name": "ADE_CATALOG_ITEM_TEMPLATE_URL",
         "value": ""
       },
       {
-        "name": "CATALOG_ITEM_TEMPLATE_URL_TOKEN",
+        "name": "ADE_CATALOG_ITEM_TEMPLATE_URL_TOKEN",
         "value": ""
       }
     ],
