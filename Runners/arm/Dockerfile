@@ -42,4 +42,4 @@ RUN az bicep install
 # root actions.d, and ake them all executable
 COPY actions.d/* /actions.d/
 RUN find /actions.d/ -type f -iname "*.sh" -exec chmod +x {} \; \
-    find /actions.d/ -type f -iname "*.py" -exec chmod +x {} \;
+    && find /actions.d/ -type f -iname "*.py" -exec chmod +x {} \;

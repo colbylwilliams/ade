@@ -41,4 +41,4 @@ RUN apk add --no-cache terraform --repository=http://dl-cdn.alpinelinux.org/alpi
 # root actions.d, and ake them all executable
 COPY actions.d/* /actions.d/
 RUN find /actions.d/ -type f -iname "*.sh" -exec chmod +x {} \; \
-    find /actions.d/ -type f -iname "*.py" -exec chmod +x {} \;
+    && find /actions.d/ -type f -iname "*.py" -exec chmod +x {} \;
