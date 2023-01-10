@@ -20,7 +20,7 @@ parser.add_argument('script', help='The script to run', default=None, nargs='?')
 parser.add_argument('--debug', help='Enable debug logging', action='store_true', default=False)
 
 args = parser.parse_args()
-input_script = args.script
+cmd_input = args.script
 debug_mode = args.debug
 
 timestamp = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
@@ -94,6 +94,7 @@ log.info('')
 log.info(f'Running action: {action_name}')
 log.info('')
 log.info('Environment variables:')
+log.info('======================')
 for key, value in os.environ.items():
     log.info(f'{key}: {value}')
 
@@ -255,13 +256,16 @@ log.info(f'Current subscription: {sub["name"]} ({sub["id"]})')
 
 script = None
 
-if input_script is not None:
-    script = Path(input_script).resolve()
-    log.info(f'Found script in input: {script}')
-    if not script.is_file():
-        error_exit(f'Invalid script path provided in input: {script}')
-    if script.suffix != '.sh' and script.suffix != '.py':
-        error_exit(f'Invalid script type provided in input: {script}')
+if cmd_input is not None:
+    log.info(f'CMD input found: {cmd_input}')
+    cmd_input = Path(cmd_input).resolve()
+    if not cmd_input.is_file():
+        log.info(f'CMD input script is not a file, ignoring: ({cmd_input})')
+        # error_exit(f'Invalid script path provided in CMD input: {script}')
+    elif cmd_input.suffix != '.sh' and cmd_input.suffix != '.py':
+        error_exit(f'Invalid script type provided in CMD input: {cmd_input} (only .sh and .py scripts are supported)')
+    else:
+        script = cmd_input
 
 if script is None:
     script = get_action_script(catalog_item, action_name)
