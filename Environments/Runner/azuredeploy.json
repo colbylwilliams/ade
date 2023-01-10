@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "118153355057418034"
+      "templateHash": "7824848971507450237"
     }
   },
   "parameters": {
@@ -78,8 +78,155 @@
     "mountTemporary": "/mnt/temporary",
     "mountRepository": "/mnt/repository",
     "authEnvironmentVars": "[if(and(not(empty(parameters('clientId'))), not(empty(parameters('clientSecret')))), createArray(createObject('name', 'AZURE_TENANT_ID', 'value', tenant().tenantId), createObject('name', 'AZURE_CLIENT_ID', 'value', parameters('clientId')), createObject('name', 'AZURE_CLIENT_SECRET', 'secureValue', parameters('clientSecret'))), createArray())]",
-    "identityId": "/subscriptions/e5f715ae-6c72-4a5c-87c8-495590c34828/resourcegroups/ade-tests/providers/Microsoft.ManagedIdentity/userAssignedIdentities/ADETestProject-Dev",
-    "storageAccountId": "/subscriptions/e5f715ae-6c72-4a5c-87c8-495590c34828/resourceGroups/ade-tests/providers/Microsoft.Storage/storageAccounts/adetestcenter",
+    "defaultEnvironmentVars": [
+      {
+        "name": "ARM_USE_MSI",
+        "value": true
+      },
+      {
+        "name": "ARM_TENANT_ID",
+        "value": "[tenant().tenantId]"
+      },
+      {
+        "name": "ARM_SUBSCRIPTION_ID",
+        "value": "[subscription().subscriptionId]"
+      },
+      {
+        "name": "ARM_RESOURCE_GROUP_NAME",
+        "value": "[resourceGroup().name]"
+      },
+      {
+        "name": "ENVIRONMENT_ID",
+        "value": ""
+      },
+      {
+        "name": "ENVIRONMENT_LOCATION",
+        "value": "[parameters('location')]"
+      },
+      {
+        "name": "ENVIRONMENT_SUBSCRIPTION",
+        "value": "[subscription().id]"
+      },
+      {
+        "name": "ENVIRONMENT_SUBSCRIPTION_ID",
+        "value": "[subscription().subscriptionId]"
+      },
+      {
+        "name": "ENVIRONMENT_RESOURCE_GROUP_ID",
+        "value": "[resourceGroup().id]"
+      },
+      {
+        "name": "ENVIRONMENT_RESOURCE_GROUP_NAME",
+        "value": "[resourceGroup().name]"
+      },
+      {
+        "name": "ENVIRONMENT_ARTIFACTS",
+        "value": "[format('{0}/.artifacts', variables('mountStorage'))]"
+      },
+      {
+        "name": "ENVIRONMENT_TYPE_ID",
+        "value": "[resourceGroup().tags.ENVIRONMENT_TYPE_ID]"
+      },
+      {
+        "name": "ENVIRONMENT_TYPE_NAME",
+        "value": "[resourceGroup().tags.ENVIRONMENT_TYPE_NAME]"
+      },
+      {
+        "name": "ENVIRONMENT_TYPE_IDENTITY",
+        "value": "[resourceGroup().tags.ENVIRONMENT_TYPE_IDENTITY]"
+      },
+      {
+        "name": "ENVIRONMENT_TYPE_IDENTITY_TYPE",
+        "value": "[resourceGroup().tags.ENVIRONMENT_TYPE_IDENTITY_TYPE]"
+      },
+      {
+        "name": "PROJECT_ID",
+        "value": "[resourceGroup().tags.PROJECT_ID]"
+      },
+      {
+        "name": "PROJECT_NAME",
+        "value": "[resourceGroup().tags.PROJECT_NAME]"
+      },
+      {
+        "name": "DEVCENTER_ID",
+        "value": "[resourceGroup().tags.DEVCENTER_ID]"
+      },
+      {
+        "name": "DEVCENTER_NAME",
+        "value": "[resourceGroup().tags.DEVCENTER_NAME]"
+      },
+      {
+        "name": "DEVCENTER_CONFIG_ID",
+        "value": "[resourceGroup().tags.DEVCENTER_CONFIG_ID]"
+      },
+      {
+        "name": "DEVCENTER_CONFIG_NAME",
+        "value": "[resourceGroup().tags.DEVCENTER_CONFIG_NAME]"
+      },
+      {
+        "name": "DEVCENTER_STORAGE_ID",
+        "value": "[resourceGroup().tags.DEVCENTER_STORAGE_ID]"
+      },
+      {
+        "name": "DEVCENTER_STORAGE_NAME",
+        "value": "[resourceGroup().tags.DEVCENTER_STORAGE_NAME]"
+      },
+      {
+        "name": "ACTION_ID",
+        "value": "[parameters('actionId')]"
+      },
+      {
+        "name": "ACTION_NAME",
+        "value": "[parameters('actionName')]"
+      },
+      {
+        "name": "ACTION_PARAMETERS",
+        "value": ""
+      },
+      {
+        "name": "ACTION_STORAGE",
+        "value": "[variables('mountStorage')]"
+      },
+      {
+        "name": "ACTION_TEMP",
+        "value": "/mnt/temporary"
+      },
+      {
+        "name": "ACTION_OUTPUT",
+        "value": "[format('/mnt/storage/.output/{0}', parameters('actionId'))]"
+      },
+      {
+        "name": "CATALOG",
+        "value": "[format('{0}{1}', variables('mountRepository'), parameters('catalogRepoPath'))]"
+      },
+      {
+        "name": "CATALOG_NAME",
+        "value": "[parameters('catalog')]"
+      },
+      {
+        "name": "CATALOG_ITEM",
+        "value": "[format('{0}{1}/{2}', variables('mountRepository'), parameters('catalogRepoPath'), parameters('catalogItem'))]"
+      },
+      {
+        "name": "CATALOG_ITEM_NAME",
+        "value": "[parameters('catalogItem')]"
+      },
+      {
+        "name": "CATALOG_ITEM_TEMPLATE",
+        "value": ""
+      },
+      {
+        "name": "CATALOG_ITEM_TEMPLATE_URL",
+        "value": ""
+      },
+      {
+        "name": "CATALOG_ITEM_TEMPLATE_URL_TOKEN",
+        "value": ""
+      }
+    ],
+    "environmentVars": "[if(empty(variables('authEnvironmentVars')), variables('defaultEnvironmentVars'), concat(variables('defaultEnvironmentVars'), variables('authEnvironmentVars')))]",
+    "identityId": "[resourceGroup().tags.ENVIRONMENT_TYPE_IDENTITY]",
+    "storageAccountId": "[resourceGroup().tags.DEVCENTER_STORAGE_ID]",
     "storageAccountName": "[if(empty(variables('storageAccountId')), '', last(split(variables('storageAccountId'), '/')))]",
     "storageAccountGroup": "[if(empty(variables('storageAccountId')), '', first(split(last(split(replace(variables('storageAccountId'), 'resourceGroups', 'resourcegroups'), '/resourcegroups/')), '/')))]",
     "storageAccountSub": "[if(empty(variables('storageAccountId')), '', first(split(last(split(variables('storageAccountId'), '/subscriptions/')), '/')))]",
@@ -129,7 +276,7 @@
                   "readOnly": false
                 }
               ],
-              "environmentVariables": "[if(empty(variables('authEnvironmentVars')), createArray(createObject('name', 'ARM_USE_MSI', 'value', true()), createObject('name', 'ARM_TENANT_ID', 'value', tenant().tenantId), createObject('name', 'ARM_SUBSCRIPTION_ID', 'value', subscription().subscriptionId), createObject('name', 'ARM_RESOURCE_GROUP_NAME', 'value', resourceGroup().name), createObject('name', 'ENVIRONMENT_ID', 'value', ''), createObject('name', 'ENVIRONMENT_LOCATION', 'value', parameters('location')), createObject('name', 'ENVIRONMENT_SUBSCRIPTION', 'value', subscription().id), createObject('name', 'ENVIRONMENT_SUBSCRIPTION_ID', 'value', subscription().subscriptionId), createObject('name', 'ENVIRONMENT_RESOURCE_GROUP_ID', 'value', resourceGroup().id), createObject('name', 'ENVIRONMENT_RESOURCE_GROUP_NAME', 'value', resourceGroup().name), createObject('name', 'ENVIRONMENT_ARTIFACTS', 'value', format('{0}/.artifacts', variables('mountStorage'))), createObject('name', 'ENVIRONMENT_TYPE_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.ENVIRONMENT_TYPE_ID), createObject('name', 'ENVIRONMENT_TYPE_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.ENVIRONMENT_TYPE_NAME), createObject('name', 'ENVIRONMENT_TYPE_IDENTITY', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.ENVIRONMENT_TYPE_IDENTITY), createObject('name', 'ENVIRONMENT_TYPE_IDENTITY_TYPE', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.ENVIRONMENT_TYPE_IDENTITY_TYPE), createObject('name', 'PROJECT_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.PROJECT_ID), createObject('name', 'PROJECT_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.PROJECT_NAME), createObject('name', 'DEVCENTER_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_ID), createObject('name', 'DEVCENTER_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_NAME), createObject('name', 'DEVCENTER_CONFIG_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_CONFIG_ID), createObject('name', 'DEVCENTER_CONFIG_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_CONFIG_NAME), createObject('name', 'DEVCENTER_STORAGE_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_STORAGE_ID), createObject('name', 'DEVCENTER_STORAGE_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_STORAGE_NAME), createObject('name', 'ACTION_ID', 'value', parameters('actionId')), createObject('name', 'ACTION_NAME', 'value', parameters('actionName')), createObject('name', 'ACTION_PARAMETERS', 'value', ''), createObject('name', 'ACTION_STORAGE', 'value', variables('mountStorage')), createObject('name', 'ACTION_TEMP', 'value', '/mnt/temporary'), createObject('name', 'ACTION_OUTPUT', 'value', format('/mnt/storage/.output/{0}', parameters('actionId'))), createObject('name', 'CATALOG', 'value', format('{0}{1}', variables('mountRepository'), parameters('catalogRepoPath'))), createObject('name', 'CATALOG_NAME', 'value', parameters('catalog')), createObject('name', 'CATALOG_ITEM', 'value', format('{0}{1}/{2}', variables('mountRepository'), parameters('catalogRepoPath'), parameters('catalogItem'))), createObject('name', 'CATALOG_ITEM_NAME', 'value', parameters('catalogItem')), createObject('name', 'CATALOG_ITEM_TEMPLATE', 'value', ''), createObject('name', 'CATALOG_ITEM_TEMPLATE_URL', 'value', ''), createObject('name', 'CATALOG_ITEM_TEMPLATE_URL_TOKEN', 'value', '')), concat(createArray(createObject('name', 'ARM_USE_MSI', 'value', true()), createObject('name', 'ARM_TENANT_ID', 'value', tenant().tenantId), createObject('name', 'ARM_SUBSCRIPTION_ID', 'value', subscription().subscriptionId), createObject('name', 'ARM_RESOURCE_GROUP_NAME', 'value', resourceGroup().name), createObject('name', 'ENVIRONMENT_ID', 'value', ''), createObject('name', 'ENVIRONMENT_LOCATION', 'value', parameters('location')), createObject('name', 'ENVIRONMENT_SUBSCRIPTION', 'value', subscription().id), createObject('name', 'ENVIRONMENT_SUBSCRIPTION_ID', 'value', subscription().subscriptionId), createObject('name', 'ENVIRONMENT_RESOURCE_GROUP_ID', 'value', resourceGroup().id), createObject('name', 'ENVIRONMENT_RESOURCE_GROUP_NAME', 'value', resourceGroup().name), createObject('name', 'ENVIRONMENT_ARTIFACTS', 'value', format('{0}/.artifacts', variables('mountStorage'))), createObject('name', 'ENVIRONMENT_TYPE_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.ENVIRONMENT_TYPE_ID), createObject('name', 'ENVIRONMENT_TYPE_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.ENVIRONMENT_TYPE_NAME), createObject('name', 'ENVIRONMENT_TYPE_IDENTITY', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.ENVIRONMENT_TYPE_IDENTITY), createObject('name', 'ENVIRONMENT_TYPE_IDENTITY_TYPE', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.ENVIRONMENT_TYPE_IDENTITY_TYPE), createObject('name', 'PROJECT_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.PROJECT_ID), createObject('name', 'PROJECT_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.PROJECT_NAME), createObject('name', 'DEVCENTER_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_ID), createObject('name', 'DEVCENTER_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_NAME), createObject('name', 'DEVCENTER_CONFIG_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_CONFIG_ID), createObject('name', 'DEVCENTER_CONFIG_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_CONFIG_NAME), createObject('name', 'DEVCENTER_STORAGE_ID', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_STORAGE_ID), createObject('name', 'DEVCENTER_STORAGE_NAME', 'value', reference(resourceId('Microsoft.Resources/tags', 'default'), '2022-09-01').tags.DEVCENTER_STORAGE_NAME), createObject('name', 'ACTION_ID', 'value', parameters('actionId')), createObject('name', 'ACTION_NAME', 'value', parameters('actionName')), createObject('name', 'ACTION_PARAMETERS', 'value', ''), createObject('name', 'ACTION_STORAGE', 'value', variables('mountStorage')), createObject('name', 'ACTION_TEMP', 'value', '/mnt/temporary'), createObject('name', 'ACTION_OUTPUT', 'value', format('/mnt/storage/.output/{0}', parameters('actionId'))), createObject('name', 'CATALOG', 'value', format('{0}{1}', variables('mountRepository'), parameters('catalogRepoPath'))), createObject('name', 'CATALOG_NAME', 'value', parameters('catalog')), createObject('name', 'CATALOG_ITEM', 'value', format('{0}{1}/{2}', variables('mountRepository'), parameters('catalogRepoPath'), parameters('catalogItem'))), createObject('name', 'CATALOG_ITEM_NAME', 'value', parameters('catalogItem')), createObject('name', 'CATALOG_ITEM_TEMPLATE', 'value', ''), createObject('name', 'CATALOG_ITEM_TEMPLATE_URL', 'value', ''), createObject('name', 'CATALOG_ITEM_TEMPLATE_URL_TOKEN', 'value', '')), variables('authEnvironmentVars')))]"
+              "environmentVariables": "[variables('environmentVars')]"
             }
           }
         ],

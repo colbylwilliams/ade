@@ -31,17 +31,21 @@ LABEL maintainer="Microsoft" \
     org.label-schema.vcs-url="https://github.com/colbylwilliams/ade.git" \
     org.label-schema.docker.cmd="docker run ghcr.io/colbylwilliams/ade/core:$IMAGE_VERSION"
 
-COPY entrypoint.d/* /entrypoint.d/
-COPY entrypoint.sh /entrypoint.sh
 COPY actions.d/* /actions.d/
+COPY entrypoint.d/* /entrypoint.d/
+COPY entrypoint.py /entrypoint.py
 
-# Make entrypoint.sh and all scripts in entrypoint.d and actions.d executable
-RUN chmod +x /entrypoint.sh \
-    && mkdir -p /entrypoint.d && find /entrypoint.d/ -type f -iname "*.sh" -exec chmod +x {} \; \
-    && mkdir -p /actions.d && find /actions.d/ -type f -iname "*.sh" -exec chmod +x {} \;
+# Make entrypoint.py and all scripts in entrypoint.d and actions.d executable
+RUN chmod +x /entrypoint.py \
+    && mkdir -p /actions.d \
+    && mkdir -p /entrypoint.d \
+    && find /actions.d/ -type f -iname "*.sh" -exec chmod +x {} \; \
+    && find /actions.d/ -type f -iname "*.py" -exec chmod +x {} \; \
+    && find /entrypoint.d/ -type f -iname "*.sh" -exec chmod +x {} \; \
+    && find /entrypoint.d/ -type f -iname "*.py" -exec chmod +x {} \;
 
 # Terminate container on stop
 STOPSIGNAL SIGTERM
 
 CMD [ "" ]
-ENTRYPOINT [ "/entrypoint.sh" ]
+ENTRYPOINT [ "/entrypoint.py" ]

@@ -33,6 +33,9 @@ param catalogRepoSecret string = ''
 
 param catalogRepoPath string = '/Environments'
 
+// get the tags that ADE added from the Environment Type
+// var tags = resourceGroup().tags
+
 var mountStorage = '/mnt/storage'
 var mountTemporary = '/mnt/temporary'
 var mountRepository = '/mnt/repository'
@@ -57,18 +60,18 @@ var defaultEnvironmentVars = [
   { name: 'ENVIRONMENT_RESOURCE_GROUP_ID', value: resourceGroup().id } // The id of the Environment's resource group. For example: /subscriptions/159f2485-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/ENVIRONMENT_RESOURCE_GROUP_NAME.
   { name: 'ENVIRONMENT_RESOURCE_GROUP_NAME', value: resourceGroup().name } // The name of the Environment's resource group. This will have the same value as ENVIRONMENT_RESOURCE_GROUP_NAME.
   { name: 'ENVIRONMENT_ARTIFACTS', value: '${mountStorage}/.artifacts' } // Always set to /mnt/storage/.artifacts. The path to a persistent (file share) directory. This directory will be persisted between actions. Files saved to this directory will be available via the Dataplane.
-  { name: 'ENVIRONMENT_TYPE_ID', value: tags.properties.tags.ENVIRONMENT_TYPE_ID }
-  { name: 'ENVIRONMENT_TYPE_NAME', value: tags.properties.tags.ENVIRONMENT_TYPE_NAME }
-  { name: 'ENVIRONMENT_TYPE_IDENTITY', value: tags.properties.tags.ENVIRONMENT_TYPE_IDENTITY }
-  { name: 'ENVIRONMENT_TYPE_IDENTITY_TYPE', value: tags.properties.tags.ENVIRONMENT_TYPE_IDENTITY_TYPE }
-  { name: 'PROJECT_ID', value: tags.properties.tags.PROJECT_ID }
-  { name: 'PROJECT_NAME', value: tags.properties.tags.PROJECT_NAME }
-  { name: 'DEVCENTER_ID', value: tags.properties.tags.DEVCENTER_ID }
-  { name: 'DEVCENTER_NAME', value: tags.properties.tags.DEVCENTER_NAME }
-  { name: 'DEVCENTER_CONFIG_ID', value: tags.properties.tags.DEVCENTER_CONFIG_ID }
-  { name: 'DEVCENTER_CONFIG_NAME', value: tags.properties.tags.DEVCENTER_CONFIG_NAME }
-  { name: 'DEVCENTER_STORAGE_ID', value: tags.properties.tags.DEVCENTER_STORAGE_ID }
-  { name: 'DEVCENTER_STORAGE_NAME', value: tags.properties.tags.DEVCENTER_STORAGE_NAME }
+  { name: 'ENVIRONMENT_TYPE_ID', value: resourceGroup().tags.ENVIRONMENT_TYPE_ID }
+  { name: 'ENVIRONMENT_TYPE_NAME', value: resourceGroup().tags.ENVIRONMENT_TYPE_NAME }
+  { name: 'ENVIRONMENT_TYPE_IDENTITY', value: resourceGroup().tags.ENVIRONMENT_TYPE_IDENTITY }
+  { name: 'ENVIRONMENT_TYPE_IDENTITY_TYPE', value: resourceGroup().tags.ENVIRONMENT_TYPE_IDENTITY_TYPE }
+  { name: 'PROJECT_ID', value: resourceGroup().tags.PROJECT_ID }
+  { name: 'PROJECT_NAME', value: resourceGroup().tags.PROJECT_NAME }
+  { name: 'DEVCENTER_ID', value: resourceGroup().tags.DEVCENTER_ID }
+  { name: 'DEVCENTER_NAME', value: resourceGroup().tags.DEVCENTER_NAME }
+  { name: 'DEVCENTER_CONFIG_ID', value: resourceGroup().tags.DEVCENTER_CONFIG_ID }
+  { name: 'DEVCENTER_CONFIG_NAME', value: resourceGroup().tags.DEVCENTER_CONFIG_NAME }
+  { name: 'DEVCENTER_STORAGE_ID', value: resourceGroup().tags.DEVCENTER_STORAGE_ID }
+  { name: 'DEVCENTER_STORAGE_NAME', value: resourceGroup().tags.DEVCENTER_STORAGE_NAME }
   { name: 'ACTION_ID', value: actionId } // The unique id (guid) of the action.
   { name: 'ACTION_NAME', value: actionName } // The name of the action to execute. For example: deploy.
   // { name: 'ACTION_HOST', value: '' } // TODO...
@@ -88,12 +91,9 @@ var defaultEnvironmentVars = [
 
 var environmentVars = empty(authEnvironmentVars) ? defaultEnvironmentVars : concat(defaultEnvironmentVars, authEnvironmentVars)
 
-var identityId = '/subscriptions/e5f715ae-6c72-4a5c-87c8-495590c34828/resourcegroups/ade-tests/providers/Microsoft.ManagedIdentity/userAssignedIdentities/ADETestProject-Dev'
-// var identityId = tags.properties.tags.ENVIRONMENT_TYPE_IDENTITY
+var identityId = resourceGroup().tags.ENVIRONMENT_TYPE_IDENTITY
 
-// var storageAccountId = tags.properties.tags.DEVCENTER_STORAGE_ID
-var storageAccountId = '/subscriptions/e5f715ae-6c72-4a5c-87c8-495590c34828/resourceGroups/ade-tests/providers/Microsoft.Storage/storageAccounts/adetestcenter'
-
+var storageAccountId = resourceGroup().tags.DEVCENTER_STORAGE_ID
 var storageAccountName = empty(storageAccountId) ? '' : last(split(storageAccountId, '/'))
 var storageAccountGroup = empty(storageAccountId) ? '' : first(split(last(split(replace(storageAccountId, 'resourceGroups', 'resourcegroups'), '/resourcegroups/')), '/'))
 var storageAccountSub = empty(storageAccountId) ? '' : first(split(last(split(storageAccountId, '/subscriptions/')), '/'))
@@ -105,11 +105,6 @@ var nameClean = replace(replace(replace(toLower(trim(name)), ' ', '-'), '_', '-'
 // Character limit: 3-63
 // Valid characters: Lowercase letters, numbers, and hyphens. Cant start or end with hyphen. Cant use consecutive hyphens.
 var shareName = length(nameClean) <= 62 ? nameClean : take(nameClean, 62)
-
-// get the tags that ADE added from the Environment Type
-resource tags 'Microsoft.Resources/tags@2022-09-01' existing = {
-  name: 'default'
-}
 
 resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' existing = if (!empty(storageAccountId)) {
   name: storageAccountName
